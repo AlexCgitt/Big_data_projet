@@ -334,4 +334,5 @@ for (col in categorical_columns) {
   print(table(data[[col]]))
 }
 '
-
+#et ohhhh
+#oui
