@@ -6,8 +6,12 @@ Sujet : Concevoir et développer une application d’étude du patrimoine arbor�
 
 Dans cette partie la on analyse et on traite les données
 
-stp
+Les étapes de traitement des données sont les suivantes :
 1. Exploration donné
+2. Visualisation des données sur des graphiques
+3. Visualisation des données sur une carte
+4. Etude des corrélations
+5. Prédiction de la variable « Age estimé »
 6. Régression
 7. Export pour l'IA
 8. Livrable
@@ -57,7 +61,7 @@ data = utf8(data)
 "
 Description du jeu de données
 "
-# print(table(data$X))
+print(table(data$X))
 # print(table(data$Y))
 # print(table(data$OBJECTID))
 # print(table(data$created_date))
