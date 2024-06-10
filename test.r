@@ -12,6 +12,6 @@ stp
 "
 
 # Importation des données
-data <- read.csv("Patrimoine_Arbore.csv" ,header = TRUE, encoding = "UTF-8")
+data <- read.csv("Patrimoine_Arbore.csv", header = TRUE, encoding = "UTF-8")
 
 print(head(data))
