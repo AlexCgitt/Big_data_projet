@@ -279,14 +279,6 @@ Nettoyage de la colonne 'remarquable'
     - Afficher le tableau de fréquence de la colonne 'remarquable
 "
 
-"
-Mise en minuscule de toute les colonnes de type caractère
-"
-for (colonne in names(data)) {
-  if (is.character(data[[colonne]])) {
-    data[[colonne]] <- tolower(data[[colonne]])
-  }
-}
 print(table(data$remarquable))
 
 remarquable <- function(data){
@@ -327,6 +319,7 @@ Verification de si on a des NA dans OBJECTID
 "
 
 print(table(is.na(data$OBJECTID)))
+#on a pas de NA dans OBJECTID
 
 "
 Nettoyage colonne created_date
@@ -337,7 +330,10 @@ print("--------------------")
 print(table(is.na(data$created_date)))
 
 
-
+"
+Nettoyage de la colonne 'feuillage'
+    - Remplacer proportionnellement les valeurs manquantes par 'Conifère' et 'Feuillu'
+"
 print(table(data$feuillage))
 feuillage <- function(data){
     total_coniferes <- sum(data$feuillage == "Conifère")
