@@ -255,7 +255,14 @@ Nettoyer les données
 # na_indices <- which(is.na(data), arr.ind = TRUE)
 # na_df <- data.frame(Ligne = na_indices[, 1], Colonne = colnames(data)[na_indices[, 2]])
 # #print(na_df)
-
+"
+Nettoyage de la colonne 'remarquable'
+    - Remplacer les valeurs manquantes par la valeur la plus fréquente
+    - Remplacer les valeurs 'Oui' par TRUE
+    - Remplacer les valeurs 'Non' par FALSE
+    - Remplacer les valeurs vides par FALSE
+    - Afficher le tableau de fréquence de la colonne 'remarquable
+"
 print(table(data$remarquable))
 #je veux remplacer les valeurs manquantes par la valeur la plus fréquente
 remarquable <- function(data){
@@ -269,3 +276,62 @@ data = remarquable(data)
 # print(head(data))
 # View(data)
 print(table(data$remarquable))
+
+"
+Mise en minuscule de toute les colonnes de type caractère
+"
+for (colonne in names(data)) {
+  if (is.character(data[[colonne]])) {
+    data[[colonne]] <- tolower(data[[colonne]])
+  }
+}
+
+'
+Affichages de toutes les cellules vides
+'
+# na_i <- which(is.na(data), arr.ind = TRUE)
+# na_data <- data.frame(Ligne = na_i[, 1], Colonne = colnames(data)[na_i[, 2]])
+# # print(na_data)
+# unique_na <- unique(na_data$Colonne)
+# print(unique_na)
+
+
+
+'
+print(head(data))
+
+View(data)
+
+write_csv(df, "votre_fichier_modifie.csv")
+
+# Statistique descriptive univariée
+print(summary(data))
+
+# Histogramme de la hauteur totale
+hist(data$haut_tot)
+
+# Boxplot du diamètre du tronc
+boxplot(data$tronc_diam)
+
+# Boxplot de la hauteur totale par quartier
+boxplot(haut_tot ~ clc_quartier, data = data)
+
+# Distribution des arbres par quartier
+barplot(table(data$clc_quartier))
+
+# Répartition des types de feuillage
+pie(table(data$feuillage))
+
+# Fréquence des variables catégorielles
+categorical_columns <- c("created_user", "src_geo", "clc_quartier", "clc_secteur", 
+                         "fk_arb_etat", "fk_stadedev", "fk_port", "fk_pied", 
+                         "fk_situation", "fk_revetement", "commentaire_environnement", 
+                         "fk_prec_estim", "fk_nomtech", "last_edited_user", 
+                         "villeca", "nomfrancais", "nomlatin", "Creator", 
+                         "Editor", "feuillage", "remarquable")
+for (col in categorical_columns) {
+  cat("\nFréquence de la variable:", col)
+  print(table(data[[col]]))
+}
+'
+
