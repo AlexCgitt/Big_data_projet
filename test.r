@@ -21,7 +21,6 @@ stp
 data <- read.csv("Patrimoine_Arbore.csv", header = TRUE, encoding = "latin1", sep = ",")
 
 
-
 print(head(data)) #a affiché les 6 premières lignes de data
 
 #Conversion des types de données
