@@ -17,6 +17,7 @@ stp
 #   - header: TRUE to indicate that the CSV file has a header row
 #   - encoding: "UTF-8" to specify the character encoding of the file
 #   - sep: "," to specify the separator used in the CSV file
+# test
 data <- read.csv("Patrimoine_Arbore.csv", header = TRUE, encoding = "latin1", sep = ",")
 
 
