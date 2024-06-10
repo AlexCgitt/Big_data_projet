@@ -46,6 +46,7 @@ utf8 <- function(data) {
     }
     return(data)
 }
+
 "
 permet d'afficher un beau tableau
 "
@@ -54,8 +55,56 @@ data = utf8(data)
 # View(data)
 
 "
-Description du jeu de données   
+Description du jeu de données
 "
+# print(table(data$X))
+# print(table(data$Y))
+# print(table(data$OBJECTID))
+# print(table(data$created_date))
+# print(table(data$created_user))
+# print(table(data$src_geo))
+# print(table(data$clc_quartier))
+# print(table(data$clc_secteur))
+# print(table(data$id_arbre))
+# print(table(data$haut_tot))
+# print(table(data$haut_tronc))
+# print(table(data$tronc_diam))
+# print(table(data$fk_arb_etat))
+# print(table(data$fk_stadedev))
+# print(table(data$fk_port))
+# print(table(data$fk_pied))
+# print(table(data$fk_situation))
+# print(table(data$fk_revetement))
+# print(table(data$commentaire_environnement))
+# print(table(data$dte_plantation))
+# print(table(data$age_estim))
+# print(table(data$fk_prec_estim))
+# print(table(data$clc_nbr_diag))
+# print(table(data$dte_abattage))
+# print(table(data$fk_nomtech))
+# print(table(data$last_edited_user))
+# print(table(data$last_edited_date))
+# print(table(data$villeca))
+# print(table(data$nomfrancais))
+# print(table(data$nomlatin))
+# print(table(data$GlobalID))
+# print(table(data$CreationDate))
+# print(table(data$Creator))
+# print(table(data$EditDate))
+# print(table(data$Editor))
+# print(table(data$Editor))
+# print(table(data$Editor))
+# print(table(data$Editor))
+# print(table(data$Editor))
+# print(table(data$feuillage))
+# print(table(data$feuillage))
+# print(table(data$feuillage))
+# print(table(data$feuillage))
+# print(table(data$feuillage))
+# print(table(data$remarquable))
+
+
+
 
 "
 Conversion des types de données (des caractère en numéric)
