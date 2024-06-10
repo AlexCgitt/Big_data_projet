@@ -60,7 +60,7 @@ Description du jeu de données
 data$X <- as.numeric(data$X) #a converti la colonne X en numérique
 data$Y <- as.numeric(data$Y) #a converti la colonne Y en numérique
 data$OBJECTID <- as.numeric(data$OBJECTID) #a converti la colonne OBJECTID en numérique
-data$created_date <- as.Date(data$created_date, format = "%Y-%m-%d %H:%M:%S%z") #a converti la colonne created_date en date
+data$created_date <- as.Date(data$created_date, format = "%Y/%m/%d") #a converti la colonne created_date en date
 data$created_user <- as.character(data$created_user) #a converti la colonne created_user en caractère
 data$src_geo <- as.character(data$src_geo) #a converti la colonne src_geo en caractère
 data$clc_quartier <- as.character(data$clc_quartier) #a converti la colonne clc_quartier en caractère
@@ -76,26 +76,27 @@ data$fk_pied <- as.character(data$fk_pied) #a converti la colonne fk_pied en car
 data$fk_situation <- as.character(data$fk_situation) #a converti la colonne fk_situation en caractère
 data$fk_revetement <- as.character(data$fk_revetement) #a converti la colonne fk_revetement en caractère
 data$commentaire_environnement <- as.character(data$commentaire_environnement) #a converti la colonne commentaire_environnement en caractère
-data$dte_plantation <- as.Date(data$dte_plantation, format = "%Y-%m-%d %H:%M:%S%z") #a converti la colonne dte_plantation en date
+data$dte_plantation <- as.Date(data$dte_plantation, format = "%Y/%m/%d") #a converti la colonne dte_plantation en date
 data$age_estim <- as.numeric(data$age_estim) #a converti la colonne age_estim en numérique
 data$fk_prec_estim <- as.numeric(data$fk_prec_estim) #a converti la colonne fk_prec_estim en numérique
 data$clc_nbr_diag <- as.numeric(data$clc_nbr_diag) #a converti la colonne clc_nbr_diag en numérique
-data$dte_abattage <- as.Date(data$dte_abattage, format = "%Y-%m-%d %H:%M:%S%z") #a converti la colonne dte_abattage en date
+data$dte_abattage <- as.Date(data$dte_abattage, format = "%Y/%m/%d") #a converti la colonne dte_abattage en date
 data$fk_nomtech <- as.character(data$fk_nomtech) #a converti la colonne fk_nomtech en caractère
 data$last_edited_user <- as.character(data$last_edited_user) #a converti la colonne last_edited_user en caractère
-data$last_edited_date <- as.Date(data$last_edited_date, format = "%Y-%m-%d %H:%M:%S%z") #a converti la colonne last_edited_date en date
+data$last_edited_date <- as.Date(data$last_edited_date, format = "%Y/%m/%d") #a converti la colonne last_edited_date en date
 data$villeca <- as.character(data$villeca) #a converti la colonne villeca en caractère
 data$nomfrancais <- as.character(data$nomfrancais) #a converti la colonne nomfrancais en caractère
 data$nomlatin <- as.character(data$nomlatin) #a converti la colonne nomlatin en caractère
 data$GlobalID <- as.character(data$GlobalID) #a converti la colonne GlobalID en caractère  
-data$CreationDate <- as.Date(data$CreationDate, format = "%Y-%m-%d %H:%M:%S%z") #a converti la colonne CreationDate en date
+data$CreationDate <- as.Date(data$CreationDate, format = "%Y/%m/%d") #a converti la colonne CreationDate en date
 data$Creator <- as.character(data$Creator) #a converti la colonne Creator en caractère
-data$EditDate <- as.Date(data$EditDate, format = "%Y-%m-%d %H:%M:%S%z") #a converti la colonne EditDate en date
+data$EditDate <- as.Date(data$EditDate, format = "%Y/%m/%d") #a converti la colonne EditDate en date
 data$Editor <- as.character(data$Editor) #a converti la colonne Editor en caractère
 data$feuillage <- as.character(data$feuillage) #a converti la colonne feuillage en caractère
 data$remarquable <- as.character(data$remarquable) #a converti la colonne remarquable en caractère
 
 #affiche type de data$X
+#aaaaa
 print(class(data$X))
 
 print(head(data))
