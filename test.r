@@ -248,15 +248,40 @@ Nettoyer les données
 # #print(na_df)
 
 print(table(data$remarquable))
-#je veux remplacer les valeurs manquantes par la valeur la plus fréquente
+
 remarquable <- function(data){
     data$remarquable[data$remarquable == "Oui"] <- TRUE
     data$remarquable[data$remarquable == "Non"] <- FALSE
     data$remarquable[data$remarquable == ""] <- FALSE
+    data$remarquable <- as.logical(data$remarquable)
     return(data)
 }
 data = remarquable(data)
 
+
+#plot(data$X, data$Y)
 # print(head(data))
-# View(data)
-print(table(data$remarquable))
+#View(data)
+#print(table(data$remarquable))
+
+print(table(data$feuillage))
+feuillage <- function(data){
+    total_coniferes <- sum(data$feuillage == "Conifère")
+    total_feuillus <- sum(data$feuillage == "Feuillu")
+    total <- total_coniferes + total_feuillus
+
+    prop_coniferes <- total_coniferes / total
+    prop_feuillus <- total_feuillus / total
+
+    print(prop_coniferes)
+    print(prop_feuillus) 
+
+    set.seed(123) 
+    data$feuillage <- ifelse(data$feuillage == "",
+                            sample(c("Conifère", "Feuillu"), size = sum(data$feuillage == ""), replace = TRUE, prob = c(prop_coniferes, prop_feuillus)),
+                            data$feuillage)
+    return(data)
+}
+
+data=feuillage(data)
+print(table(data$feuillage))
