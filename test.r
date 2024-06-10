@@ -246,10 +246,10 @@ data$remarquable <- as.character(data$remarquable) #a converti la colonne remarq
 
 print(head(data))
 print(summary(data))
-View(data)
+#View(data)
 print(head(data))
 print(summary(data))
-View(data)
+#View(data)
 
 
 "
@@ -282,8 +282,8 @@ Nettoyage de la colonne 'remarquable'
 print(table(data$remarquable))
 
 remarquable <- function(data){
-    data$remarquable[data$remarquable == "Oui"] <- TRUE
-    data$remarquable[data$remarquable == "Non"] <- FALSE
+    data$remarquable[data$remarquable == "oui"] <- TRUE
+    data$remarquable[data$remarquable == "non"] <- FALSE
     data$remarquable[data$remarquable == ""] <- FALSE
     # met en type booleen
     data$remarquable <- as.logical(data$remarquable)
@@ -336,8 +336,8 @@ Nettoyage de la colonne 'feuillage'
 "
 print(table(data$feuillage))
 feuillage <- function(data){
-    total_coniferes <- sum(data$feuillage == "Conifère")
-    total_feuillus <- sum(data$feuillage == "Feuillu")
+    total_coniferes <- sum(data$feuillage == "conifère")
+    total_feuillus <- sum(data$feuillage == "feuillu")
     total <- total_coniferes + total_feuillus
 
     prop_coniferes <- total_coniferes / total
@@ -348,7 +348,7 @@ feuillage <- function(data){
 
     set.seed(123) 
     data$feuillage <- ifelse(data$feuillage == "",
-                            sample(c("Conifère", "Feuillu"), size = sum(data$feuillage == ""), replace = TRUE, prob = c(prop_coniferes, prop_feuillus)),
+                            sample(c("conifère", "feuillu"), size = sum(data$feuillage == ""), replace = TRUE, prob = c(prop_coniferes, prop_feuillus)),
                             data$feuillage)
     return(data)
 }
@@ -356,7 +356,7 @@ feuillage <- function(data){
 data=feuillage(data)
 print(table(data$feuillage))
 
-
+View(data)
 
 
 
