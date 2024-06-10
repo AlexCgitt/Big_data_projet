@@ -6,13 +6,8 @@ Sujet : Concevoir et développer une application d’étude du patrimoine arbor�
 
 Dans cette partie la on analyse et on traite les données
 
-TACHES A FAIRE :
-
+stp
 1. Exploration donné
-2. Visualisation des données sur des graphiques
-3. Visualisation des données sur une carte
-4. Etude des corrélations
-5. Prédiction de la variable « Age estimé »
 
 "
 
@@ -40,3 +35,9 @@ print(head(data_utf8))
 # print(head(data$EditDate)) #a affiché la structure de data
 # data$EditDate <- as.Date(data$EditDate, format = "%Y-%m-%d") #a converti la colonne EditDate en date
 # print(head(data$EditDate)) #a affiché la structure de data
+
+
+
+na_indices <- which(is.na(data), arr.ind = TRUE)
+na_df <- data.frame(Ligne = na_indices[, 1], Colonne = colnames(data)[na_indices[, 2]])
+print(na_df)
