@@ -16,9 +16,9 @@ stp
 "
 ---------------------------------------------------------------------------------
 1. Exploration donné
-	- Description du jeu de données
-	- Conversion des types de données (des caractère en numéric)
-	- Corriger l'encodage de UTF-8
+	- Description du jeu de données 
+	- Conversion des types de données (des caractère en numéric) X
+	- Corriger l'encodage de UTF-8 X
 	- Nettoyer les données (valeurs manquantes, valeurs aberrantes, doublons)
 	- Analyse exploratoires (les graphes)
 "
@@ -41,16 +41,23 @@ Corriger l'encodage de UTF-8
         - Boucle sur chaque colonne de data et convertir les données de latin à UTF-8
 "
 utf8 <- function(data) {
-    # boucle sur chaque colonnes de data et convertit les données de latin à UTF-8
     for (col in colnames(data)) {
         data[[col]] <- iconv(data[[col]], from = "latin1", to = "UTF-8")
     }
     return(data)
 }
 
+"
+permet d'afficher un beau tableau
+"
 data_utf8 = utf8(data)
 print(head(data_utf8))
 View(data_utf8)
+
+"
+Description du jeu de données
+    
+"
 
 
 data$X <- as.numeric(data$X) #a converti la colonne X en numérique
