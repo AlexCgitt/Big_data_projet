@@ -104,7 +104,14 @@ for (i in 1:nrow(data)) {
 #print(table(data$fk_nomtech))
 #print(table(data$nomfrancais))
 # GlobalID = Identifiant global
-# CreationDate = Date de création
+# CreationDate = Date de création de l'objet (GlobalID)
+# for (i in 1:nrow(data)) {
+#     if (data$CreationDate[i] != data$created_date[i] ) {
+#         print(data[i, c("created_date", "CreationDate")])
+#         print("---------------------------------------------------")
+#     }
+# }
+#creationDate et created_date sont différents
 # Creator = Créateur SERT A RIEN ON REMPLACE PAR created_user
 # print(table(data$created_user))
 # print(table(data$Creator))
@@ -251,6 +258,14 @@ Nettoyer les données
     - Valeurs aberrantes
     - Doublons
 "
+"
+Mise en minuscule de toute les colonnes de type caractère
+"
+for (colonne in names(data)) {
+  if (is.character(data[[colonne]])) {
+    data[[colonne]] <- tolower(data[[colonne]])
+  }
+}
 
 # na_indices <- which(is.na(data), arr.ind = TRUE)
 # na_df <- data.frame(Ligne = na_indices[, 1], Colonne = colnames(data)[na_indices[, 2]])
@@ -269,6 +284,8 @@ remarquable <- function(data){
     data$remarquable[data$remarquable == "Oui"] <- TRUE
     data$remarquable[data$remarquable == "Non"] <- FALSE
     data$remarquable[data$remarquable == ""] <- FALSE
+    # met en type booleen
+    data$remarquable <- as.logical(data$remarquable)
     return(data)
 }
 data = remarquable(data)
@@ -277,14 +294,39 @@ data = remarquable(data)
 # View(data)
 print(table(data$remarquable))
 
+#View(data)
+
 "
-Mise en minuscule de toute les colonnes de type caractère
+Nettoyage colonne X et Y
+Si il n'y a pas de X ou de Y, on supprime la ligne
 "
-for (colonne in names(data)) {
-  if (is.character(data[[colonne]])) {
-    data[[colonne]] <- tolower(data[[colonne]])
-  }
-}
+# on observe deja les valeurs manquantes dans les colonnes X et Y
+# print("--------------------")
+# print(table(is.na(data$X)))
+# print(table(is.na(data$Y)))
+# print("--------------------")
+# affiche les lignes avec des valeurs manquantes
+# print(data[is.na(data$X) | is.na(data$Y), c("X", "Y")])
+
+# on supprime les lignes avec des valeurs manquantes
+data <- data[!is.na(data$X) & !is.na(data$Y), ]
+# print(table(is.na(data$X)))
+# print(table(is.na(data$Y)))
+
+"
+Verification de si on a des NA dans OBJECTID
+"
+
+print(table(is.na(data$OBJECTID)))
+
+"
+Nettoyage colonne created_date
+Si il n'y a pas de created_date, on supprime la ligne
+"
+# on observe deja les valeurs manquantes dans les colonnes created_date
+print("--------------------")
+print(table(is.na(data$created_date)))
+
 
 '
 Affichages de toutes les cellules vides
@@ -334,5 +376,3 @@ for (col in categorical_columns) {
   print(table(data[[col]]))
 }
 '
-#et ohhhh
-#oui
