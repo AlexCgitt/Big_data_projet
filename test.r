@@ -61,53 +61,59 @@ data = utf8(data)
 "
 Description du jeu de données
 "
-# print(table(data$X))
-# print(table(data$Y))
-# print(table(data$OBJECTID))
-# print(table(data$created_date))
+# X = Longitude
+# Y = Latitude
+# OBJECTID = Identifiant de l'objet
+# created_date = Date de création
+# created_user = Utilisateur de création
+# data$src_geo = Source géographique
+# clc_quartier = Quartier
+# clc_secteur = Secteur
+# id_arbre = Identifiant de l'arbre
+# haut_tot = Hauteur totale
+# haut_tronc = Hauteur du tronc
+# tronc_diam = Diamètre du tronc
+# fk signifie clé étrangère : Une clé étrangère est un groupe de colonnes d’une table qui fait référence à la clé primaire d’une autre table
+# fk_arb_etat = Etat de l'arbre
+# fk_stadedev = Stade de développement
+# fk_port = Port (forme de l'arbre : reduit, semi-libre, ...)
+# fk_pied = Pied (forme du sol : gazon, revetement, ...)
+# fk_situation = Situation (situation de l'arbre : groupe, aligné, ...)
+# fk_revetement = Revetement (revetement du sol : gazon, revetement, ...) SERT A RIEN
+# commentaire_environnement = Commentaire sur l'environnement
+# dte_plantation = Date de plantation
+# age_estim = Age estimé
+# fk_prec_estim = Précision de l'age estimé
+# clc_nbr_diag = Nombre de diagnostics
+# dte_abattage = Date d'abattage
+# fk_nomtech = Nom technique
+# last_edited_user = Dernier utilisateur édité
+# last_edited_date = Date de la dernière édition
+# villeca = Ville
+# nomfrancais = Nom français
+# nomlatin = Nom latin
+# nomlatin, fk_nomtech et nomfrancais sont les noms de l'arbre (presque les memes, sert limite a rien de mettre les deux)
+# comparé fk_nomtech, nomlatin et nomfrancais
+for (i in 1:nrow(data)) {
+    if (data$fk_nomtech[i] != data$nomlatin[i] || data$fk_nomtech[i] != data$nomfrancais[i] || data$nomlatin[i] != data$nomfrancais[i]) {
+        print(data[i, c("fk_nomtech", "nomlatin", "nomfrancais")])
+        print("---------------------------------------------------")
+    }
+}
+#print(table(data$nomlatin))
+#print(table(data$fk_nomtech))
+#print(table(data$nomfrancais))
+# GlobalID = Identifiant global
+# CreationDate = Date de création
+# Creator = Créateur SERT A RIEN ON REMPLACE PAR created_user
 # print(table(data$created_user))
-# print(table(data$src_geo))
-# print(table(data$clc_quartier))
-# print(table(data$clc_secteur))
-# print(table(data$id_arbre))
-# print(table(data$haut_tot))
-# print(table(data$haut_tronc))
-# print(table(data$tronc_diam))
-# print(table(data$fk_arb_etat))
-# print(table(data$fk_stadedev))
-# print(table(data$fk_port))
-# print(table(data$fk_pied))
-# print(table(data$fk_situation))
-# print(table(data$fk_revetement))
-# print(table(data$commentaire_environnement))
-# print(table(data$dte_plantation))
-# print(table(data$age_estim))
-# print(table(data$fk_prec_estim))
-# print(table(data$clc_nbr_diag))
-# print(table(data$dte_abattage))
-# print(table(data$fk_nomtech))
-# print(table(data$last_edited_user))
-# print(table(data$last_edited_date))
-# print(table(data$villeca))
-# print(table(data$nomfrancais))
-# print(table(data$nomlatin))
-# print(table(data$GlobalID))
-# print(table(data$CreationDate))
 # print(table(data$Creator))
-# print(table(data$EditDate))
+# EditDate = Date d'édition
+# Editor = Editeur
 # print(table(data$Editor))
-# print(table(data$Editor))
-# print(table(data$Editor))
-# print(table(data$Editor))
-# print(table(data$Editor))
-# print(table(data$feuillage))
-# print(table(data$feuillage))
-# print(table(data$feuillage))
-# print(table(data$feuillage))
-# print(table(data$feuillage))
-# print(table(data$remarquable))
-
-
+# print(table(data$last_edited_user))
+# feuillage = Feuillage
+# remarquable = Remarquable
 
 
 "
@@ -234,6 +240,9 @@ data$remarquable <- as.character(data$remarquable) #a converti la colonne remarq
 print(head(data))
 print(summary(data))
 View(data)
+print(head(data))
+print(summary(data))
+View(data)
 
 
 "
@@ -246,7 +255,23 @@ Nettoyer les données
 # na_indices <- which(is.na(data), arr.ind = TRUE)
 # na_df <- data.frame(Ligne = na_indices[, 1], Colonne = colnames(data)[na_indices[, 2]])
 # #print(na_df)
+"
+Nettoyage de la colonne 'remarquable'
+    - Remplacer les valeurs manquantes par la valeur la plus fréquente
+    - Remplacer les valeurs 'Oui' par TRUE
+    - Remplacer les valeurs 'Non' par FALSE
+    - Remplacer les valeurs vides par FALSE
+    - Afficher le tableau de fréquence de la colonne 'remarquable
+"
 
+"
+Mise en minuscule de toute les colonnes de type caractère
+"
+for (colonne in names(data)) {
+  if (is.character(data[[colonne]])) {
+    data[[colonne]] <- tolower(data[[colonne]])
+  }
+}
 print(table(data$remarquable))
 
 remarquable <- function(data){
@@ -261,8 +286,10 @@ data = remarquable(data)
 
 #plot(data$X, data$Y)
 # print(head(data))
-#View(data)
-#print(table(data$remarquable))
+# View(data)
+print(table(data$remarquable))
+
+
 
 print(table(data$feuillage))
 feuillage <- function(data){
@@ -285,3 +312,63 @@ feuillage <- function(data){
 
 data=feuillage(data)
 print(table(data$feuillage))
+
+
+
+
+
+
+
+
+'
+Affichages de toutes les cellules vides
+'
+# na_i <- which(is.na(data), arr.ind = TRUE)
+# na_data <- data.frame(Ligne = na_i[, 1], Colonne = colnames(data)[na_i[, 2]])
+# # print(na_data)
+# unique_na <- unique(na_data$Colonne)
+# print(unique_na)
+
+
+
+
+
+'
+print(head(data))
+
+View(data)
+
+write_csv(df, "votre_fichier_modifie.csv")
+
+# Statistique descriptive univariée
+print(summary(data))
+
+# Histogramme de la hauteur totale
+hist(data$haut_tot)
+
+# Boxplot du diamètre du tronc
+boxplot(data$tronc_diam)
+
+# Boxplot de la hauteur totale par quartier
+boxplot(haut_tot ~ clc_quartier, data = data)
+
+# Distribution des arbres par quartier
+barplot(table(data$clc_quartier))
+
+# Répartition des types de feuillage
+pie(table(data$feuillage))
+
+# Fréquence des variables catégorielles
+categorical_columns <- c("created_user", "src_geo", "clc_quartier", "clc_secteur", 
+                         "fk_arb_etat", "fk_stadedev", "fk_port", "fk_pied", 
+                         "fk_situation", "fk_revetement", "commentaire_environnement", 
+                         "fk_prec_estim", "fk_nomtech", "last_edited_user", 
+                         "villeca", "nomfrancais", "nomlatin", "Creator", 
+                         "Editor", "feuillage", "remarquable")
+for (col in categorical_columns) {
+  cat("\nFréquence de la variable:", col)
+  print(table(data[[col]]))
+}
+'
+#et ohhhh
+#oui
