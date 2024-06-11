@@ -93,18 +93,26 @@ Description du jeu de données
 # nomfrancais = Nom français
 # nomlatin = Nom latin
 # nomlatin, fk_nomtech et nomfrancais sont les noms de l'arbre (presque les memes, sert limite a rien de mettre les deux)
+
+
 # comparé fk_nomtech, nomlatin et nomfrancais
-for (i in 1:nrow(data)) {
-    if (data$fk_nomtech[i] != data$nomlatin[i] || data$fk_nomtech[i] != data$nomfrancais[i] || data$nomlatin[i] != data$nomfrancais[i]) {
-        print(data[i, c("fk_nomtech", "nomlatin", "nomfrancais")])
-        print("---------------------------------------------------")
-    }
-}
+
+# for (i in 1:nrow(data)) {
+#     if (data$fk_nomtech[i] != data$nomlatin[i] || data$fk_nomtech[i] != data$nomfrancais[i] || data$nomlatin[i] != data$nomfrancais[i]) {
+#         print(data[i, c("fk_nomtech", "nomlatin", "nomfrancais")])
+#         print("---------------------------------------------------")
+#     }
+# }
+
+
 #print(table(data$nomlatin))
 #print(table(data$fk_nomtech))
 #print(table(data$nomfrancais))
+
+
 # GlobalID = Identifiant global
 # CreationDate = Date de création de l'objet (GlobalID)
+
 # for (i in 1:nrow(data)) {
 #     if (data$CreationDate[i] != data$created_date[i] ) {
 #         print(data[i, c("created_date", "CreationDate")])
@@ -244,11 +252,11 @@ data$remarquable <- as.character(data$remarquable) #a converti la colonne remarq
 # print("data$remarquable")
 # print(class(data$remarquable))
 
-print(head(data))
-print(summary(data))
+# print(head(data))
+# print(summary(data))
 #View(data)
-print(head(data))
-print(summary(data))
+# print(head(data))
+# print(summary(data))
 #View(data)
 
 
@@ -270,6 +278,98 @@ for (colonne in names(data)) {
 # na_indices <- which(is.na(data), arr.ind = TRUE)
 # na_df <- data.frame(Ligne = na_indices[, 1], Colonne = colnames(data)[na_indices[, 2]])
 # #print(na_df)
+
+"
+Nettoyage colonne X et Y
+Si il n'y a pas de X ou de Y, on supprime la ligne
+"
+# on observe deja les valeurs manquantes dans les colonnes X et Y
+# print("--------------------")
+# print(table(is.na(data$X)))
+# print(table(is.na(data$Y)))
+# print("--------------------")
+# affiche les lignes avec des valeurs manquantes
+# print(data[is.na(data$X) | is.na(data$Y), c("X", "Y")])
+
+# on supprime les lignes avec des valeurs manquantes
+data <- data[!is.na(data$X) & !is.na(data$Y), ]
+# print(table(is.na(data$X)))
+# print(table(is.na(data$Y)))
+
+"
+Verification de si on a des NA dans OBJECTID
+"
+
+print(table(is.na(data$OBJECTID)))
+#on a pas de NA dans OBJECTID
+
+
+"
+Nettoyage colonne created_date
+Si il n'y a pas de created_date, on supprime la ligne
+"
+# on observe deja les valeurs manquantes dans les colonnes created_date
+print("-----------les dates---------")
+print(table(is.na(data$created_date)))
+print(table(data$created_date))
+#remplacer les valeurs manquantes par la moyenne de la created_date située avant et après
+for (x in 2:length(data$created_date)) {
+    if (is.na(data$created_date[x])) {
+      if (!is.na(data$created_date[x-1])){
+        data$created_date[x] <- data$created_date[x-1]
+      } else if (!is.na(data$created_date[x+1])){
+        data$created_date[x] <- data$created_date[x+1]
+      } else {
+        for (y in x:length(data$created_date)) {
+          if (!is.na(data$created_date[y])) {
+            data$created_date[x] <- data$created_date[y]
+            break
+          }
+        }
+      }
+    }
+}
+print("\n")
+print (table(data$created_date))
+print("\n voila maitnenant les dates na possible")
+print(table(is.na(data$created_date)))
+#okok
+#revoir le format des dates car bon il n'est pas fou
+
+"
+Nettoyage colonne src_geo
+"
+
+data$src_geo <- "orthophoto"
+
+
+
+"
+Nettoyage de la colonne 'feuillage'
+    - Remplacer proportionnellement les valeurs manquantes par 'Conifère' et 'Feuillu'
+"
+print(table(data$feuillage))
+feuillage <- function(data){
+    total_coniferes <- sum(data$feuillage == "conifère")
+    total_feuillus <- sum(data$feuillage == "feuillu")
+    total <- total_coniferes + total_feuillus
+
+    prop_coniferes <- total_coniferes / total
+    prop_feuillus <- total_feuillus / total
+
+    print(prop_coniferes)
+    print(prop_feuillus) 
+
+    set.seed(123) 
+    data$feuillage <- ifelse(data$feuillage == "",
+                            sample(c("conifère", "feuillu"), size = sum(data$feuillage == ""), replace = TRUE, prob = c(prop_coniferes, prop_feuillus)),
+                            data$feuillage)
+    return(data)
+}
+
+data=feuillage(data)
+print(table(data$feuillage))
+
 "
 Nettoyage de la colonne 'remarquable'
     - Remplacer les valeurs manquantes par la valeur la plus fréquente
@@ -297,96 +397,11 @@ data = remarquable(data)
 # View(data)
 print(table(data$remarquable))
 
-"
-Nettoyage colonne X et Y
-Si il n'y a pas de X ou de Y, on supprime la ligne
-"
-# on observe deja les valeurs manquantes dans les colonnes X et Y
-# print("--------------------")
-# print(table(is.na(data$X)))
-# print(table(is.na(data$Y)))
-# print("--------------------")
-# affiche les lignes avec des valeurs manquantes
-# print(data[is.na(data$X) | is.na(data$Y), c("X", "Y")])
 
-# on supprime les lignes avec des valeurs manquantes
-data <- data[!is.na(data$X) & !is.na(data$Y), ]
-# print(table(is.na(data$X)))
-# print(table(is.na(data$Y)))
 
-"
-Verification de si on a des NA dans OBJECTID
-"
 
-print(table(is.na(data$OBJECTID)))
-#on a pas de NA dans OBJECTID
-
-"
-Nettoyage colonne created_date
-Si il n'y a pas de created_date, on supprime la ligne
-"
-# on observe deja les valeurs manquantes dans les colonnes created_date
-print("-----------les dates---------")
-print(table(is.na(data$created_date)))
-print(table(data$created_date))
-#remplacer les valeurs manquantes par la moyenne de la created_date située avant et après
-data$created_date <- as.numeric(data$created_date)
-for (x in 2:length(data$created_date)) {
-    if (is.na(data$created_date[x])) {
-        #faire en sorte que le x-1 ou x+1 soit une date et pas NA
-        if (!is.na(data$created_date[x-1]) && !is.na(data$created_date[x+1])) {
-            data$created_date[x] <- data$created_date[x-1]
-        } else if (!is.na(data$created_date[x-1])) {
-            data$created_date[x] <- data$created_date[x-1]
-        } else if (!is.na(data$created_date[x+1])) {
-            data$created_date[x] <- data$created_date[x+1]
-        }
-        #si x-1 et x+1 sont NA on cherche la premiere date non NA
-        else {
-            for (y in x:length(data$created_date)) {
-                if (!is.na(data$created_date[y])) {
-                    data$created_date[x] <- data$created_date[y]
-                    break
-                }
-            }
-        }
-
-    }
-}
-print("\n")
-print (table(data$created_date))
-print("\n voila maitnenant les dates na possible")
-print(table(is.na(data$created_date)))
-
-#revoir le format des dates car bon il n'est pas fou
-"
-Nettoyage de la colonne 'feuillage'
-    - Remplacer proportionnellement les valeurs manquantes par 'Conifère' et 'Feuillu'
-"
-print(table(data$feuillage))
-feuillage <- function(data){
-    total_coniferes <- sum(data$feuillage == "conifère")
-    total_feuillus <- sum(data$feuillage == "feuillu")
-    total <- total_coniferes + total_feuillus
-
-    prop_coniferes <- total_coniferes / total
-    prop_feuillus <- total_feuillus / total
-
-    print(prop_coniferes)
-    print(prop_feuillus) 
-
-    set.seed(123) 
-    data$feuillage <- ifelse(data$feuillage == "",
-                            sample(c("conifère", "feuillu"), size = sum(data$feuillage == ""), replace = TRUE, prob = c(prop_coniferes, prop_feuillus)),
-                            data$feuillage)
-    return(data)
-}
-
-data=feuillage(data)
-print(table(data$feuillage))
 
 View(data)
-
 
 
 '
