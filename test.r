@@ -326,10 +326,39 @@ Nettoyage colonne created_date
 Si il n'y a pas de created_date, on supprime la ligne
 "
 # on observe deja les valeurs manquantes dans les colonnes created_date
-print("--------------------")
+print("-----------les dates---------")
+print(table(is.na(data$created_date)))
+print(table(data$created_date))
+#remplacer les valeurs manquantes par la moyenne de la created_date située avant et après
+data$created_date <- as.numeric(data$created_date)
+for (x in 2:length(data$created_date)) {
+    if (is.na(data$created_date[x])) {
+        #faire en sorte que le x-1 ou x+1 soit une date et pas NA
+        if (!is.na(data$created_date[x-1]) && !is.na(data$created_date[x+1])) {
+            data$created_date[x] <- data$created_date[x-1]
+        } else if (!is.na(data$created_date[x-1])) {
+            data$created_date[x] <- data$created_date[x-1]
+        } else if (!is.na(data$created_date[x+1])) {
+            data$created_date[x] <- data$created_date[x+1]
+        }
+        #si x-1 et x+1 sont NA on cherche la premiere date non NA
+        else {
+            for (y in x:length(data$created_date)) {
+                if (!is.na(data$created_date[y])) {
+                    data$created_date[x] <- data$created_date[y]
+                    break
+                }
+            }
+        }
+
+    }
+}
+print("\n")
+print (table(data$created_date))
+print("\n voila maitnenant les dates na possible")
 print(table(is.na(data$created_date)))
 
-
+#revoir le format des dates car bon il n'est pas fou
 "
 Nettoyage de la colonne 'feuillage'
     - Remplacer proportionnellement les valeurs manquantes par 'Conifère' et 'Feuillu'
@@ -373,40 +402,39 @@ Affichages de toutes les cellules vides
 
 
 
-'
-print(head(data))
 
-View(data)
+# print(head(data))
 
-write_csv(df, "votre_fichier_modifie.csv")
+# View(data)
 
-# Statistique descriptive univariée
-print(summary(data))
+# write_csv(df, "votre_fichier_modifie.csv")
 
-# Histogramme de la hauteur totale
-hist(data$haut_tot)
+# # Statistique descriptive univariée
+# print(summary(data))
 
-# Boxplot du diamètre du tronc
-boxplot(data$tronc_diam)
+# # Histogramme de la hauteur totale
+# hist(data$haut_tot)
 
-# Boxplot de la hauteur totale par quartier
-boxplot(haut_tot ~ clc_quartier, data = data)
+# # Boxplot du diamètre du tronc
+# boxplot(data$tronc_diam)
 
-# Distribution des arbres par quartier
-barplot(table(data$clc_quartier))
+# # Boxplot de la hauteur totale par quartier
+# boxplot(haut_tot ~ clc_quartier, data = data)
 
-# Répartition des types de feuillage
-pie(table(data$feuillage))
+# # Distribution des arbres par quartier
+# barplot(table(data$clc_quartier))
 
-# Fréquence des variables catégorielles
-categorical_columns <- c("created_user", "src_geo", "clc_quartier", "clc_secteur", 
-                         "fk_arb_etat", "fk_stadedev", "fk_port", "fk_pied", 
-                         "fk_situation", "fk_revetement", "commentaire_environnement", 
-                         "fk_prec_estim", "fk_nomtech", "last_edited_user", 
-                         "villeca", "nomfrancais", "nomlatin", "Creator", 
-                         "Editor", "feuillage", "remarquable")
-for (col in categorical_columns) {
-  cat("\nFréquence de la variable:", col)
-  print(table(data[[col]]))
-}
-'
+# # Répartition des types de feuillage
+# pie(table(data$feuillage))
+
+# # Fréquence des variables catégorielles
+# categorical_columns <- c("created_user", "src_geo", "clc_quartier", "clc_secteur", 
+#                          "fk_arb_etat", "fk_stadedev", "fk_port", "fk_pied", 
+#                          "fk_situation", "fk_revetement", "commentaire_environnement", 
+#                          "fk_prec_estim", "fk_nomtech", "last_edited_user", 
+#                          "villeca", "nomfrancais", "nomlatin", "Creator", 
+#                          "Editor", "feuillage", "remarquable")
+# for (col in categorical_columns) {
+#   cat("\nFréquence de la variable:", col)
+#   print(table(data[[col]]))
+# }
