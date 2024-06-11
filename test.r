@@ -280,6 +280,9 @@ for (colonne in names(data)) {
   }
 }
 
+#tous les characteres "" deviennent des NA
+data[data == ""] <- NA
+
 # na_indices <- which(is.na(data), arr.ind = TRUE)
 # na_df <- data.frame(Ligne = na_indices[, 1], Colonne = colnames(data)[na_indices[, 2]])
 # #print(na_df)
@@ -300,6 +303,14 @@ Si il n'y a pas de X ou de Y, on supprime la ligne
 data <- data[!is.na(data$X) & !is.na(data$Y), ]
 # print(table(is.na(data$X)))
 # print(table(is.na(data$Y)))
+
+print("lignes trop vides")
+print(nrow(data))
+#supprime les lignes où il y a + de 12 valeurs NA 
+data <- data[rowSums(is.na(data)) < 13, ]
+print(nrow(data))
+
+data <- data[!duplicated(data[, c("X", "Y", "fk_arb_etat")]), ]
 
 "
 Verification de si on a des NA dans OBJECTID
@@ -441,25 +452,25 @@ Nettoyage de la colonne 'feuillage'
     - Remplacer proportionnellement les valeurs manquantes par 'Conifère' et 'Feuillu'
 "
 # print(table(data$feuillage))
-feuillage <- function(data){
-    total_coniferes <- sum(data$feuillage == "conifère")
-    total_feuillus <- sum(data$feuillage == "feuillu")
-    total <- total_coniferes + total_feuillus
+# feuillage <- function(data){
+#     total_coniferes <- sum(data$feuillage == "conifère")
+#     total_feuillus <- sum(data$feuillage == "feuillu")
+#     total <- total_coniferes + total_feuillus
 
-    prop_coniferes <- total_coniferes / total
-    prop_feuillus <- total_feuillus / total
+#     prop_coniferes <- total_coniferes / total
+#     prop_feuillus <- total_feuillus / total
 
-    # print(prop_coniferes)
-    # print(prop_feuillus) 
+#     # print(prop_coniferes)
+#     # print(prop_feuillus) 
 
-    set.seed(123) 
-    data$feuillage <- ifelse(data$feuillage == "",
-                            sample(c("conifère", "feuillu"), size = sum(data$feuillage == ""), replace = TRUE, prob = c(prop_coniferes, prop_feuillus)),
-                            data$feuillage)
-    return(data)
-}
+#     set.seed(123) 
+#     data$feuillage <- ifelse(data$feuillage == "",
+#                             sample(c("conifère", "feuillu"), size = sum(data$feuillage == ""), replace = TRUE, prob = c(prop_coniferes, prop_feuillus)),
+#                             data$feuillage)
+#     return(data)
+# }
 
-data=feuillage(data)
+# data=feuillage(data)
 # print(table(data$feuillage))
 
 "
@@ -476,7 +487,7 @@ Nettoyage de la colonne 'remarquable'
 remarquable <- function(data){
     data$remarquable[data$remarquable == "oui"] <- TRUE
     data$remarquable[data$remarquable == "non"] <- FALSE
-    data$remarquable[data$remarquable == ""] <- FALSE
+    data$remarquable[is.na(data$remarquable)] <- FALSE
     # met en type booleen
     data$remarquable <- as.logical(data$remarquable)
     return(data)
@@ -484,10 +495,26 @@ remarquable <- function(data){
 data = remarquable(data)
 
 
+
 #plot(data$X, data$Y)
 # print(head(data))
 # View(data)
 # print(table(data$remarquable))
+
+
+#remplace les valeurs NA de haut_tot par la valeur medianne des valeurs de haut_tot
+data$haut_tot[is.na(data$haut_tot)] <- median(data$haut_tot, na.rm = TRUE)
+
+#print(data[data$tronc_diam == 0, c("fk_arb_etat", "tronc_diam")])
+
+#remplace les valeurs NA de tronc_diam par la valeur medianne des valeurs de tronc_diam
+data$tronc_diam[is.na(data$tronc_diam)] <- median(data$tronc_diam, na.rm = TRUE)
+#print(data[data$tronc_diam == 0, c("fk_arb_etat", "tronc_diam")])
+
+#remplace les valeurs NA de haut_tronc par la valeur medianne des valeurs de haut_tronc
+data$haut_tronc[is.na(data$haut_tronc)] <- median(data$haut_tronc, na.rm = TRUE)
+#print(data[data$haut_tronc == 0, c("fk_arb_etat", "haut_tronc")])
+
 
 View(data)
 
@@ -505,6 +532,8 @@ Affichages de toutes les cellules vides
 
 
 print(summary(data$OBJECTID))
+
+print(table(data$created_user))
 
 
 # print(head(data))
