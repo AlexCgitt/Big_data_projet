@@ -576,3 +576,78 @@ print(table(data$created_user))
 ---------------------------------------------------------------------------------
 Visualisation des données sur des graphiques
 '
+
+# Installation des bibliothèques
+install.packages("sf")
+install.packages("leaflet")
+install.packages("ggplot2")
+install.packages("dplyr")
+# Chargement des bibliothèques
+library(sf)
+library(leaflet)
+library(ggplot2)
+library(dplyr)
+
+
+# Graphique de répartition des arbres par stade de développement
+ggplot(data = data, aes(x = fk_stadedev)) +
+    geom_bar(fill = "red") +
+    labs(title = "Répartition des arbres suivant leur stade de développement", 
+        x = "Stade de développement", 
+        y = "Nombre d'arbres") +
+    theme_minimal()     # Fond blanc quadrillé
+
+# Histogramme de la quantité d'arbres par quartier
+ggplot(data = data, aes(x = clc_quartier)) +
+    geom_bar(fill = "orange") +
+    labs(title = "Quantité d'arbres par quartier",
+        x = "Quartier",
+        y = "Nombre d'arbres") +
+    theme_minimal() +   # Fond blanc quadrillé
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+# Histogramme de la quantité d'arbres par secteur
+ggplot(data = data, aes(x = clc_secteur)) +
+    geom_bar(fill = "yellow") +
+    labs(title = "Quantité d'arbres par secteur",
+          x = "Secteur",
+          y = "Nombre d'arbres") +
+    theme_minimal() +     # Fond blanc quadrillé
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+# Histogramme de la quantité d'arbres par situation
+ggplot(data = data, aes(x = fk_situation)) +
+    geom_bar(fill = "green") +
+    labs(title = "Quantité d'arbres par situation",
+          x = "Situation",
+          y = "Nombre d'arbres") +
+    theme_minimal() +     # Fond blanc quadrillé
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+'
+---------------------------------------------------------------------------------
+Visualisation des données sur une carte
+'
+
+# Conversion des données en objet spatial sf
+# Transformation des coordonnées de EPSG:3949 à EPSG:4326
+tree_sf <- st_as_sf(data, coords = c("X", "Y"), crs = 3949)
+tree_sf_transfo <- st_transform(tree_sf, crs = 4326)
+
+# Extraire les coordonnées transformées
+tree_transfo <- cbind(data, st_coordinates(tree_sf_transfo))
+names(tree_transfo)[(ncol(tree_transfo)-1):ncol(tree_transfo)] <- c("Longitude", "Latitude")
+
+# Visualisation sur une carte de Saint Quentin
+carte <- leaflet(tree_transfo) %>% addTiles() %>% addCircleMarkers(~Longitude, ~Latitude, popup = ~paste("ID:", OBJECTID), radius = 1)
+print(carte)
+
+# Graphique de la quantité d'arbres par quartier/secteur
+graph <- ggplot(data = tree_transfo, aes(x = clc_quartier)) +
+    geom_bar(fill = "blue") +
+    labs(title = "Quantité d'arbres par quartier/secteur",
+        x = "Quartier/Secteur",
+        y = "Nombre d'arbres") +
+    theme_minimal()       # Fond blanc quadrillé
+print(graph)
