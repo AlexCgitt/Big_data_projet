@@ -104,6 +104,10 @@ Description du jeu de données
 #     }
 # }
 
+#les colonnes nomlatin, nomfrancais et fk_nom sont les memes à 4 valeurs près donc on se permet de supprimer la colonne nomlatin
+#suppression de la colonne nomlatin
+data$nomlatin <- NULL
+
 
 #print(table(data$nomlatin))
 #print(table(data$fk_nomtech))
@@ -166,7 +170,7 @@ data$last_edited_user <- as.character(data$last_edited_user) #a converti la colo
 data$last_edited_date <- as.Date(data$last_edited_date, format = "%Y/%m/%d") #a converti la colonne last_edited_date en date
 data$villeca <- as.character(data$villeca) #a converti la colonne villeca en caractère
 data$nomfrancais <- as.character(data$nomfrancais) #a converti la colonne nomfrancais en caractère
-data$nomlatin <- as.character(data$nomlatin) #a converti la colonne nomlatin en caractère
+#data$nomlatin <- as.character(data$nomlatin) #a converti la colonne nomlatin en caractère
 data$GlobalID <- as.character(data$GlobalID) #a converti la colonne GlobalID en caractère  
 data$CreationDate <- as.Date(data$CreationDate, format = "%Y/%m/%d") #a converti la colonne CreationDate en date
 data$Creator <- as.character(data$Creator) #a converti la colonne Creator en caractère
@@ -260,6 +264,7 @@ data$remarquable <- as.character(data$remarquable) #a converti la colonne remarq
 #View(data)
 
 
+
 "
 Nettoyer les données
     - Valeurs manquantes
@@ -309,9 +314,9 @@ Nettoyage colonne created_date
 Si il n'y a pas de created_date, on supprime la ligne
 "
 # on observe deja les valeurs manquantes dans les colonnes created_date
-print("-----------les dates---------")
-print(table(is.na(data$created_date)))
-print(table(data$created_date))
+# print("-----------les dates---------")
+# print(table(is.na(data$created_date)))
+# print(table(data$created_date))
 #remplacer les valeurs manquantes par la moyenne de la created_date située avant et après
 for (x in 2:length(data$created_date)) {
     if (is.na(data$created_date[x])) {
@@ -329,12 +334,15 @@ for (x in 2:length(data$created_date)) {
       }
     }
 }
-print("\n")
-print (table(data$created_date))
-print("\n voila maitnenant les dates na possible")
-print(table(is.na(data$created_date)))
+# print("\n")
+# print (table(data$created_date))
+# print("\n voila maitnenant les dates na possible")
+# print(table(is.na(data$created_date)))
 #okok
 #revoir le format des dates car bon il n'est pas fou
+
+
+
 
 "
 Nettoyage colonne src_geo
@@ -343,12 +351,96 @@ Nettoyage colonne src_geo
 data$src_geo <- "orthophoto"
 
 
+"
+nettoyage colonne created_user
 
+"
+
+#il n'y a pas de valeurs manquantes il faut donc juste modifier les espace dans la phrase par des .
+data$created_user <- gsub(" ", ".", data$created_user)
+# print(table(data$created_user))
+#quand on ne sait pas par qui ça a été créé on met rien
+
+"
+netttoyage colonne clc_quartier
+"
+
+print(table(data$clc_quartier))
+#pour ce qui est des valeurs manquantes je vais chercher via les valeurs x et y du quartier manquant le quartier ayant les valeurs x et y les plus proches
+
+# Calculer la distance géographique entre deux points
+distance_geo <- function(x1, y1, x2, y2) {
+    return(sqrt((x1 - x2)^2 + (y1 - y2)^2))
+}
+
+# Imputation des valeurs manquantes dans clc_quartier en utilisant la distance géographique
+impute_clc_quartier <- function(data) {
+    for (i in 1:nrow(data)) {
+        if (data$clc_quartier[i] == "") {
+            min_dist <- Inf
+            closest_quartier <- NA
+            for (j in 1:nrow(data)) {
+                if (data$clc_quartier[j] != "" && i != j) {
+                    dist <- distance_geo(data$X[i], data$Y[i], data$X[j], data$Y[j])
+                    if (dist < min_dist) {
+                        min_dist <- dist
+                        closest_quartier <- data$clc_quartier[j]
+                    }
+                }
+            }
+            # faire en sorte que si la distance geographique entre i et j  est superieur a 300 alors on ne prend pas en compte et on met "quartier inconnu" le problème c'est que l'on ne connait pas la distance max a ne pas depasser
+            if (min_dist > 500) {
+                closest_quartier <- "quartier inconnu"
+            }
+            data$clc_quartier[i] <- closest_quartier
+        }
+    }
+    return(data)
+}
+
+# Appliquer la fonction d'imputation
+data <- impute_clc_quartier(data)
+
+print("on verifie si il y a des valeurs manquantes dans clc_quartier apres imputation")
+# Afficher le tableau de fréquence de la colonne clc_quartier après le nettoyage
+print(table(data$clc_quartier))
+
+
+"
+netttoyage colonne clc_secteur
+"
+#print(table(data$clc_secteur))
+#sert a rien de le nettoyer car il n'y a pas de valeurs manquantes
+
+"
+netttoyage colonne id_arbre
+"
+# print("nombre de valeurs manquantes dans id_arbre avant nettoyage")
+# print(table(is.na(data$id_arbre)))
+# remplacer les valeurs manquantes par l'id de l'arbre précédent + 1
+for (x in 2:length(data$id_arbre)) {
+    if (is.na(data$id_arbre[x])) {
+      if (!is.na(data$id_arbre[x-1])){
+        data$id_arbre[x] <- data$id_arbre[x-1] + 1
+      } else if (!is.na(data$id_arbre[x+1])){
+        data$id_arbre[x] <- data$id_arbre[x+1] - 1
+      } else {
+        for (y in x:length(data$id_arbre)) {
+          if (!is.na(data$id_arbre[y])) {
+            data$id_arbre[x] <- data$id_arbre[y] + 1
+            break
+          }
+        }
+      }
+    }
+}
+# print("nombre de valeurs manquantes dans id_arbre après nettoyage")
+# print(table(is.na(data$id_arbre)))
 "
 Nettoyage de la colonne 'feuillage'
     - Remplacer proportionnellement les valeurs manquantes par 'Conifère' et 'Feuillu'
 "
-print(table(data$feuillage))
+# print(table(data$feuillage))
 feuillage <- function(data){
     total_coniferes <- sum(data$feuillage == "conifère")
     total_feuillus <- sum(data$feuillage == "feuillu")
@@ -357,8 +449,8 @@ feuillage <- function(data){
     prop_coniferes <- total_coniferes / total
     prop_feuillus <- total_feuillus / total
 
-    print(prop_coniferes)
-    print(prop_feuillus) 
+    # print(prop_coniferes)
+    # print(prop_feuillus) 
 
     set.seed(123) 
     data$feuillage <- ifelse(data$feuillage == "",
@@ -368,7 +460,7 @@ feuillage <- function(data){
 }
 
 data=feuillage(data)
-print(table(data$feuillage))
+# print(table(data$feuillage))
 
 "
 Nettoyage de la colonne 'remarquable'
@@ -379,7 +471,7 @@ Nettoyage de la colonne 'remarquable'
     - Afficher le tableau de fréquence de la colonne 'remarquable
 "
 
-print(table(data$remarquable))
+#print(table(data$remarquable))
 
 remarquable <- function(data){
     data$remarquable[data$remarquable == "oui"] <- TRUE
@@ -395,7 +487,7 @@ data = remarquable(data)
 #plot(data$X, data$Y)
 # print(head(data))
 # View(data)
-print(table(data$remarquable))
+# print(table(data$remarquable))
 
 View(data)
 
@@ -411,7 +503,7 @@ Affichages de toutes les cellules vides
 
 
 
-
+print(summary(data$OBJECTID))
 
 
 # print(head(data))
