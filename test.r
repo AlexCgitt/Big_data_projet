@@ -104,7 +104,14 @@ for (i in 1:nrow(data)) {
 #print(table(data$fk_nomtech))
 #print(table(data$nomfrancais))
 # GlobalID = Identifiant global
-# CreationDate = Date de création
+# CreationDate = Date de création de l'objet (GlobalID)
+# for (i in 1:nrow(data)) {
+#     if (data$CreationDate[i] != data$created_date[i] ) {
+#         print(data[i, c("created_date", "CreationDate")])
+#         print("---------------------------------------------------")
+#     }
+# }
+#creationDate et created_date sont différents
 # Creator = Créateur SERT A RIEN ON REMPLACE PAR created_user
 # print(table(data$created_user))
 # print(table(data$Creator))
@@ -239,10 +246,10 @@ data$remarquable <- as.character(data$remarquable) #a converti la colonne remarq
 
 print(head(data))
 print(summary(data))
-View(data)
+#View(data)
 print(head(data))
 print(summary(data))
-View(data)
+#View(data)
 
 
 "
@@ -251,6 +258,14 @@ Nettoyer les données
     - Valeurs aberrantes
     - Doublons
 "
+"
+Mise en minuscule de toute les colonnes de type caractère
+"
+for (colonne in names(data)) {
+  if (is.character(data[[colonne]])) {
+    data[[colonne]] <- tolower(data[[colonne]])
+  }
+}
 
 # na_indices <- which(is.na(data), arr.ind = TRUE)
 # na_df <- data.frame(Ligne = na_indices[, 1], Colonne = colnames(data)[na_indices[, 2]])
@@ -264,20 +279,13 @@ Nettoyage de la colonne 'remarquable'
     - Afficher le tableau de fréquence de la colonne 'remarquable
 "
 
-"
-Mise en minuscule de toute les colonnes de type caractère
-"
-for (colonne in names(data)) {
-  if (is.character(data[[colonne]])) {
-    data[[colonne]] <- tolower(data[[colonne]])
-  }
-}
 print(table(data$remarquable))
 
 remarquable <- function(data){
-    data$remarquable[data$remarquable == "Oui"] <- TRUE
-    data$remarquable[data$remarquable == "Non"] <- FALSE
+    data$remarquable[data$remarquable == "oui"] <- TRUE
+    data$remarquable[data$remarquable == "non"] <- FALSE
     data$remarquable[data$remarquable == ""] <- FALSE
+    # met en type booleen
     data$remarquable <- as.logical(data$remarquable)
     return(data)
 }
@@ -289,12 +297,76 @@ data = remarquable(data)
 # View(data)
 print(table(data$remarquable))
 
+"
+Nettoyage colonne X et Y
+Si il n'y a pas de X ou de Y, on supprime la ligne
+"
+# on observe deja les valeurs manquantes dans les colonnes X et Y
+# print("--------------------")
+# print(table(is.na(data$X)))
+# print(table(is.na(data$Y)))
+# print("--------------------")
+# affiche les lignes avec des valeurs manquantes
+# print(data[is.na(data$X) | is.na(data$Y), c("X", "Y")])
 
+# on supprime les lignes avec des valeurs manquantes
+data <- data[!is.na(data$X) & !is.na(data$Y), ]
+# print(table(is.na(data$X)))
+# print(table(is.na(data$Y)))
 
+"
+Verification de si on a des NA dans OBJECTID
+"
+
+print(table(is.na(data$OBJECTID)))
+#on a pas de NA dans OBJECTID
+
+"
+Nettoyage colonne created_date
+Si il n'y a pas de created_date, on supprime la ligne
+"
+# on observe deja les valeurs manquantes dans les colonnes created_date
+print("-----------les dates---------")
+print(table(is.na(data$created_date)))
+print(table(data$created_date))
+#remplacer les valeurs manquantes par la moyenne de la created_date située avant et après
+data$created_date <- as.numeric(data$created_date)
+for (x in 2:length(data$created_date)) {
+    if (is.na(data$created_date[x])) {
+        #faire en sorte que le x-1 ou x+1 soit une date et pas NA
+        if (!is.na(data$created_date[x-1]) && !is.na(data$created_date[x+1])) {
+            data$created_date[x] <- data$created_date[x-1]
+        } else if (!is.na(data$created_date[x-1])) {
+            data$created_date[x] <- data$created_date[x-1]
+        } else if (!is.na(data$created_date[x+1])) {
+            data$created_date[x] <- data$created_date[x+1]
+        }
+        #si x-1 et x+1 sont NA on cherche la premiere date non NA
+        else {
+            for (y in x:length(data$created_date)) {
+                if (!is.na(data$created_date[y])) {
+                    data$created_date[x] <- data$created_date[y]
+                    break
+                }
+            }
+        }
+
+    }
+}
+print("\n")
+print (table(data$created_date))
+print("\n voila maitnenant les dates na possible")
+print(table(is.na(data$created_date)))
+
+#revoir le format des dates car bon il n'est pas fou
+"
+Nettoyage de la colonne 'feuillage'
+    - Remplacer proportionnellement les valeurs manquantes par 'Conifère' et 'Feuillu'
+"
 print(table(data$feuillage))
 feuillage <- function(data){
-    total_coniferes <- sum(data$feuillage == "Conifère")
-    total_feuillus <- sum(data$feuillage == "Feuillu")
+    total_coniferes <- sum(data$feuillage == "conifère")
+    total_feuillus <- sum(data$feuillage == "feuillu")
     total <- total_coniferes + total_feuillus
 
     prop_coniferes <- total_coniferes / total
@@ -305,7 +377,7 @@ feuillage <- function(data){
 
     set.seed(123) 
     data$feuillage <- ifelse(data$feuillage == "",
-                            sample(c("Conifère", "Feuillu"), size = sum(data$feuillage == ""), replace = TRUE, prob = c(prop_coniferes, prop_feuillus)),
+                            sample(c("conifère", "feuillu"), size = sum(data$feuillage == ""), replace = TRUE, prob = c(prop_coniferes, prop_feuillus)),
                             data$feuillage)
     return(data)
 }
@@ -313,10 +385,7 @@ feuillage <- function(data){
 data=feuillage(data)
 print(table(data$feuillage))
 
-
-
-
-
+View(data)
 
 
 
@@ -333,42 +402,39 @@ Affichages de toutes les cellules vides
 
 
 
-'
-print(head(data))
 
-View(data)
+# print(head(data))
 
-write_csv(df, "votre_fichier_modifie.csv")
+# View(data)
 
-# Statistique descriptive univariée
-print(summary(data))
+# write_csv(df, "votre_fichier_modifie.csv")
 
-# Histogramme de la hauteur totale
-hist(data$haut_tot)
+# # Statistique descriptive univariée
+# print(summary(data))
 
-# Boxplot du diamètre du tronc
-boxplot(data$tronc_diam)
+# # Histogramme de la hauteur totale
+# hist(data$haut_tot)
 
-# Boxplot de la hauteur totale par quartier
-boxplot(haut_tot ~ clc_quartier, data = data)
+# # Boxplot du diamètre du tronc
+# boxplot(data$tronc_diam)
 
-# Distribution des arbres par quartier
-barplot(table(data$clc_quartier))
+# # Boxplot de la hauteur totale par quartier
+# boxplot(haut_tot ~ clc_quartier, data = data)
 
-# Répartition des types de feuillage
-pie(table(data$feuillage))
+# # Distribution des arbres par quartier
+# barplot(table(data$clc_quartier))
 
-# Fréquence des variables catégorielles
-categorical_columns <- c("created_user", "src_geo", "clc_quartier", "clc_secteur", 
-                         "fk_arb_etat", "fk_stadedev", "fk_port", "fk_pied", 
-                         "fk_situation", "fk_revetement", "commentaire_environnement", 
-                         "fk_prec_estim", "fk_nomtech", "last_edited_user", 
-                         "villeca", "nomfrancais", "nomlatin", "Creator", 
-                         "Editor", "feuillage", "remarquable")
-for (col in categorical_columns) {
-  cat("\nFréquence de la variable:", col)
-  print(table(data[[col]]))
-}
-'
-#et ohhhh
-#oui
+# # Répartition des types de feuillage
+# pie(table(data$feuillage))
+
+# # Fréquence des variables catégorielles
+# categorical_columns <- c("created_user", "src_geo", "clc_quartier", "clc_secteur", 
+#                          "fk_arb_etat", "fk_stadedev", "fk_port", "fk_pied", 
+#                          "fk_situation", "fk_revetement", "commentaire_environnement", 
+#                          "fk_prec_estim", "fk_nomtech", "last_edited_user", 
+#                          "villeca", "nomfrancais", "nomlatin", "Creator", 
+#                          "Editor", "feuillage", "remarquable")
+# for (col in categorical_columns) {
+#   cat("\nFréquence de la variable:", col)
+#   print(table(data[[col]]))
+# }
