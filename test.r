@@ -93,18 +93,26 @@ Description du jeu de données
 # nomfrancais = Nom français
 # nomlatin = Nom latin
 # nomlatin, fk_nomtech et nomfrancais sont les noms de l'arbre (presque les memes, sert limite a rien de mettre les deux)
+
+
 # comparé fk_nomtech, nomlatin et nomfrancais
-for (i in 1:nrow(data)) {
-    if (data$fk_nomtech[i] != data$nomlatin[i] || data$fk_nomtech[i] != data$nomfrancais[i] || data$nomlatin[i] != data$nomfrancais[i]) {
-        print(data[i, c("fk_nomtech", "nomlatin", "nomfrancais")])
-        print("---------------------------------------------------")
-    }
-}
+
+# for (i in 1:nrow(data)) {
+#     if (data$fk_nomtech[i] != data$nomlatin[i] || data$fk_nomtech[i] != data$nomfrancais[i] || data$nomlatin[i] != data$nomfrancais[i]) {
+#         print(data[i, c("fk_nomtech", "nomlatin", "nomfrancais")])
+#         print("---------------------------------------------------")
+#     }
+# }
+
+
 #print(table(data$nomlatin))
 #print(table(data$fk_nomtech))
 #print(table(data$nomfrancais))
+
+
 # GlobalID = Identifiant global
 # CreationDate = Date de création de l'objet (GlobalID)
+
 # for (i in 1:nrow(data)) {
 #     if (data$CreationDate[i] != data$created_date[i] ) {
 #         print(data[i, c("created_date", "CreationDate")])
@@ -244,11 +252,11 @@ data$remarquable <- as.character(data$remarquable) #a converti la colonne remarq
 # print("data$remarquable")
 # print(class(data$remarquable))
 
-print(head(data))
-print(summary(data))
+# print(head(data))
+# print(summary(data))
 #View(data)
-print(head(data))
-print(summary(data))
+# print(head(data))
+# print(summary(data))
 #View(data)
 
 
@@ -270,32 +278,6 @@ for (colonne in names(data)) {
 # na_indices <- which(is.na(data), arr.ind = TRUE)
 # na_df <- data.frame(Ligne = na_indices[, 1], Colonne = colnames(data)[na_indices[, 2]])
 # #print(na_df)
-"
-Nettoyage de la colonne 'remarquable'
-    - Remplacer les valeurs manquantes par la valeur la plus fréquente
-    - Remplacer les valeurs 'Oui' par TRUE
-    - Remplacer les valeurs 'Non' par FALSE
-    - Remplacer les valeurs vides par FALSE
-    - Afficher le tableau de fréquence de la colonne 'remarquable
-"
-
-print(table(data$remarquable))
-
-remarquable <- function(data){
-    data$remarquable[data$remarquable == "oui"] <- TRUE
-    data$remarquable[data$remarquable == "non"] <- FALSE
-    data$remarquable[data$remarquable == ""] <- FALSE
-    # met en type booleen
-    data$remarquable <- as.logical(data$remarquable)
-    return(data)
-}
-data = remarquable(data)
-
-
-#plot(data$X, data$Y)
-# print(head(data))
-# View(data)
-print(table(data$remarquable))
 
 "
 Nettoyage colonne X et Y
@@ -321,6 +303,7 @@ Verification de si on a des NA dans OBJECTID
 print(table(is.na(data$OBJECTID)))
 #on a pas de NA dans OBJECTID
 
+
 "
 Nettoyage colonne created_date
 Si il n'y a pas de created_date, on supprime la ligne
@@ -330,27 +313,20 @@ print("-----------les dates---------")
 print(table(is.na(data$created_date)))
 print(table(data$created_date))
 #remplacer les valeurs manquantes par la moyenne de la created_date située avant et après
-data$created_date <- as.numeric(data$created_date)
 for (x in 2:length(data$created_date)) {
     if (is.na(data$created_date[x])) {
-        #faire en sorte que le x-1 ou x+1 soit une date et pas NA
-        if (!is.na(data$created_date[x-1]) && !is.na(data$created_date[x+1])) {
-            data$created_date[x] <- data$created_date[x-1]
-        } else if (!is.na(data$created_date[x-1])) {
-            data$created_date[x] <- data$created_date[x-1]
-        } else if (!is.na(data$created_date[x+1])) {
-            data$created_date[x] <- data$created_date[x+1]
+      if (!is.na(data$created_date[x-1])){
+        data$created_date[x] <- data$created_date[x-1]
+      } else if (!is.na(data$created_date[x+1])){
+        data$created_date[x] <- data$created_date[x+1]
+      } else {
+        for (y in x:length(data$created_date)) {
+          if (!is.na(data$created_date[y])) {
+            data$created_date[x] <- data$created_date[y]
+            break
+          }
         }
-        #si x-1 et x+1 sont NA on cherche la premiere date non NA
-        else {
-            for (y in x:length(data$created_date)) {
-                if (!is.na(data$created_date[y])) {
-                    data$created_date[x] <- data$created_date[y]
-                    break
-                }
-            }
-        }
-
+      }
     }
 }
 print("\n")
@@ -394,8 +370,34 @@ feuillage <- function(data){
 data=feuillage(data)
 print(table(data$feuillage))
 
-View(data)
+"
+Nettoyage de la colonne 'remarquable'
+    - Remplacer les valeurs manquantes par la valeur la plus fréquente
+    - Remplacer les valeurs 'Oui' par TRUE
+    - Remplacer les valeurs 'Non' par FALSE
+    - Remplacer les valeurs vides par FALSE
+    - Afficher le tableau de fréquence de la colonne 'remarquable
+"
 
+print(table(data$remarquable))
+
+remarquable <- function(data){
+    data$remarquable[data$remarquable == "oui"] <- TRUE
+    data$remarquable[data$remarquable == "non"] <- FALSE
+    data$remarquable[data$remarquable == ""] <- FALSE
+    # met en type booleen
+    data$remarquable <- as.logical(data$remarquable)
+    return(data)
+}
+data = remarquable(data)
+
+
+#plot(data$X, data$Y)
+# print(head(data))
+# View(data)
+print(table(data$remarquable))
+
+View(data)
 
 
 '
