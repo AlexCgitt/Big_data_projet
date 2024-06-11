@@ -1,4 +1,10 @@
 # Projet big data
+library(sf)
+library(leaflet)
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+install.packages("RColorBrewer")
 
 "
 Sujet : Concevoir et développer une application d’étude du patrimoine arboré
@@ -377,6 +383,8 @@ netttoyage colonne clc_quartier
 "
 
 print(table(data$clc_quartier))
+# affiche les NA
+print(table(is.na(data$clc_quartier)))
 #pour ce qui est des valeurs manquantes je vais chercher via les valeurs x et y du quartier manquant le quartier ayant les valeurs x et y les plus proches
 
 # Calculer la distance géographique entre deux points
@@ -387,11 +395,11 @@ distance_geo <- function(x1, y1, x2, y2) {
 # Imputation des valeurs manquantes dans clc_quartier en utilisant la distance géographique
 impute_clc_quartier <- function(data) {
     for (i in 1:nrow(data)) {
-        if (data$clc_quartier[i] == "") {
+        if (is.na(data$clc_quartier[i])) {
             min_dist <- Inf
             closest_quartier <- NA
             for (j in 1:nrow(data)) {
-                if (data$clc_quartier[j] != "" && i != j) {
+                if (!is.na(data$clc_quartier[j]) && i != j) {
                     dist <- distance_geo(data$X[i], data$Y[i], data$X[j], data$Y[j])
                     if (dist < min_dist) {
                         min_dist <- dist
@@ -399,8 +407,8 @@ impute_clc_quartier <- function(data) {
                     }
                 }
             }
-            # faire en sorte que si la distance geographique entre i et j  est superieur a 300 alors on ne prend pas en compte et on met "quartier inconnu" le problème c'est que l'on ne connait pas la distance max a ne pas depasser
-            if (min_dist > 500) {
+            # Si la distance minimale est supérieure à 500, on met "quartier inconnu"
+            if (min_dist > 200) {
                 closest_quartier <- "quartier inconnu"
             }
             data$clc_quartier[i] <- closest_quartier
@@ -410,17 +418,20 @@ impute_clc_quartier <- function(data) {
 }
 
 # Appliquer la fonction d'imputation
-#data <- impute_clc_quartier(data)
+data <- impute_clc_quartier(data)
 
-#print("on verifie si il y a des valeurs manquantes dans clc_quartier apres imputation")
+print("Vérification des valeurs manquantes dans clc_quartier après imputation")
 # Afficher le tableau de fréquence de la colonne clc_quartier après le nettoyage
-#print(table(data$clc_quartier))
-
+print(table(data$clc_quartier))
+print("\n")
+print(table(is.na(data$clc_quartier)))
 
 "
 netttoyage colonne clc_secteur
 "
+print("------nos secteur--------")
 #print(table(data$clc_secteur))
+print(table(is.na(data$clc_secteur)))
 #sert a rien de le nettoyer car il n'y a pas de valeurs manquantes
 
 "
@@ -515,6 +526,18 @@ data$tronc_diam[is.na(data$tronc_diam)] <- median(data$tronc_diam, na.rm = TRUE)
 data$haut_tronc[is.na(data$haut_tronc)] <- median(data$haut_tronc, na.rm = TRUE)
 #print(data[data$haut_tronc == 0, c("fk_arb_etat", "haut_tronc")])
 
+"
+Nettoyage de la colonne 'fk_arb_etat'
+"
+print("------nos etats--------")
+print(table(is.na(data$fk_arb_etat)))
+#pas de valeurs manquantes
+
+"
+Nettoyage de la colonne 'age_estim'
+"
+
+
 
 View(data)
 
@@ -578,18 +601,15 @@ Visualisation des données sur des graphiques
 '
 
 # Installation des bibliothèques
-install.packages("sf")
-install.packages("leaflet")
-install.packages("ggplot2")
-install.packages("dplyr")
+# install.packages("sf")
+# install.packages("leaflet")
+# install.packages("ggplot2")
+# install.packages("dplyr")
 # Chargement des bibliothèques
-library(sf)
-library(leaflet)
-library(ggplot2)
-library(dplyr)
 
 
-# Graphique de répartition des arbres par stade de développement
+
+#Graphique de répartition des arbres par stade de développement
 ggplot(data = data, aes(x = fk_stadedev)) +
     geom_bar(fill = "red") +
     labs(title = "Répartition des arbres suivant leur stade de développement", 
@@ -639,15 +659,30 @@ tree_sf_transfo <- st_transform(tree_sf, crs = 4326)
 tree_transfo <- cbind(data, st_coordinates(tree_sf_transfo))
 names(tree_transfo)[(ncol(tree_transfo)-1):ncol(tree_transfo)] <- c("Longitude", "Latitude")
 
+# Création d'une palette de couleurs
+n <- length(unique(data$clc_quartier))
+palette <- colorFactor(palette = brewer.pal(n, "Set3"), domain = data$clc_quartier)
+
 # Visualisation sur une carte de Saint Quentin
-carte <- leaflet(tree_transfo) %>% addTiles() %>% addCircleMarkers(~Longitude, ~Latitude, popup = ~paste("ID:", OBJECTID), radius = 1)
+carte <- leaflet(tree_transfo) %>% addTiles() %>% 
+    addCircleMarkers(~Longitude, ~Latitude, color = ~palette(clc_quartier), popup = ~paste("ID:", OBJECTID), radius = 1) %>%
+    addLegend(pal = palette, values = ~clc_quartier, title = "Quartiers", position = "bottomright")
 print(carte)
 
-# Graphique de la quantité d'arbres par quartier/secteur
-graph <- ggplot(data = tree_transfo, aes(x = clc_quartier)) +
+# Graphique de la quantité d'arbres par quartier
+graph1 <- ggplot(data = tree_transfo, aes(x = clc_quartier)) +
     geom_bar(fill = "blue") +
-    labs(title = "Quantité d'arbres par quartier/secteur",
-        x = "Quartier/Secteur",
+    labs(title = "Quantité d'arbres par quartier",
+        x = "Quartier",
         y = "Nombre d'arbres") +
     theme_minimal()       # Fond blanc quadrillé
-print(graph)
+print(graph1)
+
+# Graphique de la quantité d'arbres par secteur
+graph2 <- ggplot(data = tree_transfo, aes(x = clc_secteur)) +
+    geom_bar(fill = "blue") +
+    labs(title = "Quantité d'arbres par secteur",
+        x = "Secteur",
+        y = "Nombre d'arbres") +
+    theme_minimal()       # Fond blanc quadrillé
+print(graph2)
