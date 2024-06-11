@@ -358,7 +358,7 @@ nettoyage colonne created_user
 
 #il n'y a pas de valeurs manquantes il faut donc juste modifier les espace dans la phrase par des .
 data$created_user <- gsub(" ", ".", data$created_user)
-# print(table(data$created_user))
+print(table(data$created_user))
 #quand on ne sait pas par qui ça a été créé on met rien
 
 "
@@ -399,11 +399,11 @@ impute_clc_quartier <- function(data) {
 }
 
 # Appliquer la fonction d'imputation
-data <- impute_clc_quartier(data)
+#data <- impute_clc_quartier(data)
 
-print("on verifie si il y a des valeurs manquantes dans clc_quartier apres imputation")
+#print("on verifie si il y a des valeurs manquantes dans clc_quartier apres imputation")
 # Afficher le tableau de fréquence de la colonne clc_quartier après le nettoyage
-print(table(data$clc_quartier))
+#print(table(data$clc_quartier))
 
 
 "
@@ -493,6 +493,7 @@ View(data)
 
 
 '
+---------------------------------------------------------------------------------
 Affichages de toutes les cellules vides
 '
 # na_i <- which(is.na(data), arr.ind = TRUE)
@@ -541,3 +542,8 @@ print(summary(data$OBJECTID))
 #   cat("\nFréquence de la variable:", col)
 #   print(table(data[[col]]))
 # }
+
+'
+---------------------------------------------------------------------------------
+Visualisation des données sur des graphiques
+'
