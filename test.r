@@ -359,6 +359,15 @@ print("\n voila maitnenant les dates na possible")
 print(table(is.na(data$created_date)))
 #okok
 #revoir le format des dates car bon il n'est pas fou
+
+"
+Nettoyage colonne src_geo
+"
+
+data$src_geo <- "orthophoto"
+
+
+
 "
 Nettoyage de la colonne 'feuillage'
     - Remplacer proportionnellement les valeurs manquantes par 'Conifère' et 'Feuillu'
