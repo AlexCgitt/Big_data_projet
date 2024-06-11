@@ -357,7 +357,7 @@ print("\n")
 print (table(data$created_date))
 print("\n voila maitnenant les dates na possible")
 print(table(is.na(data$created_date)))
-
+#okok
 #revoir le format des dates car bon il n'est pas fou
 "
 Nettoyage de la colonne 'feuillage'
