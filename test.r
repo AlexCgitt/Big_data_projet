@@ -316,10 +316,10 @@ data <- data[!is.na(data$X) & !is.na(data$Y), ]
 print("lignes trop vides")
 print(nrow(data))
 #supprime les lignes où il y a + de 12 valeurs NA 
-data <- data[rowSums(is.na(data)) < 13, ]
+# data <- data[rowSums(is.na(data)) < 13, ]
 print(nrow(data))
 
-data <- data[!duplicated(data[, c("X", "Y", "fk_arb_etat")]), ]
+# data <- data[!duplicated(data[, c("X", "Y", "fk_arb_etat")]), ]
 
 "
 Verification de si on a des NA dans OBJECTID
@@ -383,7 +383,7 @@ print(table(data$created_user))
 "
 netttoyage colonne clc_quartier
 "
-
+print("quartiers")
 print(table(data$clc_quartier))
 # affiche les NA
 print(table(is.na(data$clc_quartier)))
@@ -485,6 +485,10 @@ Nettoyage de la colonne 'feuillage'
 
 # data=feuillage(data)
 # print(table(data$feuillage))
+
+data$feuillage[is.na(data$feuillage)] <- "Inconnu"
+print("aaaaaaaa")
+print(table(data$feuillage))
 
 "
 Nettoyage de la colonne 'remarquable'
