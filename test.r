@@ -4,7 +4,7 @@ library(leaflet)
 library(ggplot2)
 library(dplyr)
 library(RColorBrewer)
-install.packages("RColorBrewer")
+
 
 "
 Sujet : Concevoir et développer une application d’étude du patrimoine arboré
@@ -39,12 +39,14 @@ Importation des données
     - Read the CSV file Patrimoine_Arbore.csv into the 'data' variable
     - header: TRUE to indicate that the CSV file has a header row
     - sep: , to specify the separator used in the CSV file
+    
 "
 data <- read.csv("Patrimoine_Arbore.csv", header = TRUE, sep = ",")
 
 
 "
 Corriger l'encodage de UTF-8
+pour cela, on va 
     - fonction utf8
         - Convertir les données de latin à UTF-8
         - Utiliser la fonction iconv pour convertir les données
@@ -66,6 +68,7 @@ data = utf8(data)
 
 "
 Description du jeu de données
+
 "
 # X = Longitude
 # Y = Latitude
@@ -73,10 +76,10 @@ Description du jeu de données
 # created_date = Date de création
 # created_user = Utilisateur de création
 # data$src_geo = Source géographique
-# clc_quartier = Quartier
+# clc_quartier = Quartiers. 11 quartiers différents
 # clc_secteur = Secteur
 # id_arbre = Identifiant de l'arbre
-# haut_tot = Hauteur totale
+# haut_tot = Hauteur totale de l'arbre
 # haut_tronc = Hauteur du tronc
 # tronc_diam = Diamètre du tronc
 # fk signifie clé étrangère : Une clé étrangère est un groupe de colonnes d’une table qui fait référence à la clé primaire d’une autre table
@@ -95,7 +98,7 @@ Description du jeu de données
 # fk_nomtech = Nom technique
 # last_edited_user = Dernier utilisateur édité
 # last_edited_date = Date de la dernière édition
-# villeca = Ville
+# villeca = Ville CASQ (ville pour ce qu'il y a dans la ville de Saint Quentin et CA pour ce qu'il y a dans l'agglomération)
 # nomfrancais = Nom français
 # nomlatin = Nom latin
 # nomlatin, fk_nomtech et nomfrancais sont les noms de l'arbre (presque les memes, sert limite a rien de mettre les deux)
@@ -370,7 +373,6 @@ data$src_geo <- "orthophoto"
 
 "
 nettoyage colonne created_user
-
 "
 
 #il n'y a pas de valeurs manquantes il faut donc juste modifier les espace dans la phrase par des .
@@ -536,12 +538,31 @@ print(table(is.na(data$fk_arb_etat)))
 "
 Nettoyage de la colonne 'age_estim'
 "
+print("------nos ages--------")
+print(table(is.na(data$age_estim)))
+print(table(data$age_estim))
+"
+Afin de prédire l'âge de nos arbres, nous allons effectuer une régression linéaire
+pour remplacer les valeurs manquantes par la valeur prédite par la régression
+cette regression se fera en fonction de la hauteur totale, du diamètre du tronc, de la hauteur du tronc et de l'état de l'arbre
+Le seul problème est que pour certaines valeurs de l'age estimé, on a des valeurs manquantes pour la hauteur totale, le diamètre du tronc et la hauteur du tronc.
+"
 
+prediction_de_la_muerte <- lm(age_estim ~ haut_tot + tronc_diam + haut_tronc + fk_arb_etat, data = data)
+predicted_age <- predict(prediction_de_la_muerte, data = data)
+data$age_estim[is.na(data$age_estim)] <- predicted_age[is.na(data$age_estim)]
+
+
+print("------nos ages post opération--------")
+print(table(is.na(data$age_estim)))
+print(table(data$age_estim))
 
 
 View(data)
 
 
+print("------données chelou fk--------")
+print(table(data$fk_prec_estim))
 '
 ---------------------------------------------------------------------------------
 Affichages de toutes les cellules vides
